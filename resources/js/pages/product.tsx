@@ -1,15 +1,11 @@
-import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
-import React, { useEffect, useState } from 'react';
 import AppHeader from '@/components/app-header';
-import { home } from '@/routes';
-import { ArrowDownIcon } from '@/components/ui/custom-icons';
-import { Product as ProductType } from '@/types/product';
 import ProductItem from '@/components/product-item';
-
-interface PageProps {
-    id: string;
-}
+import { ArrowDownIcon } from '@/components/ui/custom-icons';
+import AppLayout from '@/layouts/app-layout';
+import { home } from '@/routes';
+import { Product as ProductType } from '@/types/product';
+import { Head, Link } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 const API_URL: string =
     'https://armandsosins.github.io/home-assignment/random_products.json';

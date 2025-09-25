@@ -1,8 +1,8 @@
 import ProductImage from '@/components/product-image';
+import { product } from '@/routes';
 import { Product } from '@/types/product';
 import { formatCurrency } from '@/utils/format-currency';
 import { Link } from '@inertiajs/react';
-import { product } from '@/routes';
 
 type Props = {
     items: Product[];

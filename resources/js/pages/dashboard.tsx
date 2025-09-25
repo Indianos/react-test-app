@@ -1,15 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Head } from '@inertiajs/react';
 import AppHeader from '@/components/app-header';
-import { Product } from '@/types/product';
+import CategorySelectFilter from '@/components/category-select-filter';
+import NameSelectFilter from '@/components/name-select-filter';
+import Pagination from '@/components/pagination';
 import ProductGrid from '@/components/product-grid';
 import ProductTable from '@/components/product-table';
 import { Button } from '@/components/ui/button';
+import AppLayout from '@/layouts/app-layout';
+import { Product } from '@/types/product';
+import { Head } from '@inertiajs/react';
 import { Grid2X2, List } from 'lucide-react';
-import NameSelectFilter from '@/components/name-select-filter';
-import CategorySelectFilter from '@/components/category-select-filter';
-import Pagination from '@/components/pagination';
+import { useEffect, useMemo, useState } from 'react';
 
 type ViewMode = 'grid' | 'table';
 

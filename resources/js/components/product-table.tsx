@@ -1,8 +1,8 @@
+import { product } from '@/routes';
 import { Product } from '@/types/product';
 import { formatCurrency } from '@/utils/format-currency';
-import { useEffect, useMemo, useState } from 'react';
 import { Link } from '@inertiajs/react';
-import { product } from '@/routes';
+import { useEffect, useMemo, useState } from 'react';
 
 type Props = {
     items: Product[];
