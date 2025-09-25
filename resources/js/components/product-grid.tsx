@@ -1,6 +1,8 @@
 import ProductImage from '@/components/product-image';
 import { Product } from '@/types/product';
 import { formatCurrency } from '@/utils/format-currency';
+import { Link } from '@inertiajs/react';
+import { product } from '@/routes';
 
 type Props = {
     items: Product[];
@@ -22,12 +24,9 @@ export default function ProductGrid({ items }: Props) {
                         alt={p.name}
                     />
 
-                    <div
-                        className="mt-4 font-semibold"
-                        style={{ lineHeight: '1em' }}
-                    >
+                    <Link href={product(p.id)} className="mt-4 font-semibold">
                         ID: {p.id}
-                    </div>
+                    </Link>
 
                     <div className="mt-3 font-semibold text-muted-foreground">
                         Price: {formatCurrency(p.price)}

@@ -1,6 +1,8 @@
 import { Product } from '@/types/product';
 import { formatCurrency } from '@/utils/format-currency';
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from '@inertiajs/react';
+import { product } from '@/routes';
 
 type Props = {
     items: Product[];
@@ -91,7 +93,7 @@ export default function ProductTable({
                                     </td>
                                 )}
                                 <td className="px-4 py-3 align-middle font-semibold">
-                                    {p.id}
+                                    <Link href={product(p.id)}>{p.id}</Link>
                                 </td>
                                 <td className="px-4 py-3 align-middle text-muted-foreground">
                                     {p.name}
