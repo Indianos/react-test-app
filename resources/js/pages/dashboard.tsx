@@ -1,36 +1,174 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import React, { useEffect, useMemo, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
-import { dashboard } from '@/routes';
-import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import AppHeader from '@/components/app-header';
+import { Product } from '@/types/product';
+import ProductGrid from '@/components/product-grid';
+import ProductTable from '@/components/product-table';
+import { Button } from '@/components/ui/button';
+import { Grid2X2, List } from 'lucide-react';
+import NameSelectFilter from '@/components/name-select-filter';
+import CategorySelectFilter from '@/components/category-select-filter';
+import Pagination from '@/components/pagination';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard().url,
-    },
-];
+type ViewMode = 'grid' | 'table';
+
+const API_URL: string =
+    'https://armandsosins.github.io/home-assignment/random_products.json';
 
 export default function Dashboard() {
+    // PRODUCT PROCESSING
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        (async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const res = await fetch(API_URL, { signal: controller.signal });
+
+                if (!res.ok) {
+                    setError(`Request failed: ${res.status} ${res.statusText}`);
+                    return;
+                }
+
+                const data = (await res.json()) as Product[];
+                setProducts(Array.isArray(data) ? data : []);
+            } catch (err) {
+                if ((err as DOMException).name !== 'AbortError') {
+                    setError('Network error');
+                }
+            } finally {
+                setLoading(false);
+            }
+        })();
+        return () => controller.abort();
+    }, []);
+
+    // SEARCH PROVIDERS
+    const availableNames = useMemo(() => {
+        const set = new Set<string>();
+        products.forEach((p) => set.add(p.name));
+        return Array.from(set).sort();
+    }, [products]);
+    const availableCategories = useMemo(() => {
+        const set = new Set<string>();
+        products.forEach((p) => p.category && set.add(p.category));
+        return Array.from(set).sort();
+    }, [products]);
+
+    // FILTERING BY SEARCH
+    const [nameQuery, setNameQuery] = useState<string>('');
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+
+    const filtered = useMemo(
+        () =>
+            products.filter(
+                (p) =>
+                    (!nameQuery || p.name === nameQuery) &&
+                    (!selectedCategories.length ||
+                        selectedCategories.includes(p.category)),
+            ),
+        [products, nameQuery, selectedCategories],
+    );
+
+    // Pagination (handled by a Pagination component)
+    const [pageItems, setPageItems] = useState<Product[]>([]);
+
+    // View mode
+    const [view, setView] = useState<ViewMode>('grid');
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
+        <AppLayout>
+            <Head title="Product Showcase" />
+            <AppHeader>
+                <nav className="flex gap-2 rounded-lg bg-white p-1">
+                    <Button
+                        className="cursor-pointer"
+                        variant={view === 'table' ? 'default' : 'ghost'}
+                        onClick={() => setView('table')}
+                        aria-pressed={view === 'table'}
+                    >
+                        <List />
+                        Table
+                    </Button>
+                    <Button
+                        className="cursor-pointer"
+                        variant={view === 'grid' ? 'default' : 'ghost'}
+                        onClick={() => setView('grid')}
+                        aria-pressed={view === 'grid'}
+                    >
+                        <Grid2X2 />
+                        Grid
+                    </Button>
+                </nav>
+            </AppHeader>
+
+            {/* Filters */}
+            <div className="mb-6 flex items-center gap-3 rounded-lg bg-white p-4">
+                <NameSelectFilter
+                    available={availableNames}
+                    selected={nameQuery}
+                    onChange={setNameQuery}
+                />
+
+                <CategorySelectFilter
+                    available={availableCategories}
+                    selected={selectedCategories}
+                    add={(v) =>
+                        setSelectedCategories([...selectedCategories, v])
+                    }
+                    remove={(v) =>
+                        setSelectedCategories(
+                            selectedCategories.filter((c) => c !== v),
+                        )
+                    }
+                />
+                <div className="flex-1">
+                    <span className="font-semibold text-primary">
+                        {selectedCategories.join(', ')}
+                    </span>
                 </div>
-                <div className="relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                </div>
+
+                <button
+                    className="font-semibold underline"
+                    onClick={() => {
+                        setNameQuery('');
+                        setSelectedCategories([]);
+                    }}
+                >
+                    Clear Filters
+                </button>
             </div>
+
+            {/* Content */}
+            {loading ? (
+                <div className="rounded-xl border bg-white p-6 shadow-sm">
+                    Loading products…
+                </div>
+            ) : error ? (
+                <div className="rounded-xl border bg-red-50 p-6 text-red-700 shadow-sm">
+                    {error}
+                </div>
+            ) : pageItems.length === 0 ? (
+                <div className="rounded-xl border bg-white p-6 shadow-sm">
+                    No products found.
+                </div>
+            ) : view === 'grid' ? (
+                <ProductGrid items={pageItems} />
+            ) : (
+                <ProductTable items={pageItems} selectable />
+            )}
+
+            {/* Pagination */}
+            <Pagination
+                resultsArray={filtered}
+                className="mt-12"
+                pageChanged={setPageItems}
+            />
         </AppLayout>
     );
 }
