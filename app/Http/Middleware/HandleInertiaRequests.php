@@ -7,7 +7,6 @@ use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
-
     /**
      * Define the props that are shared by default.
      *
