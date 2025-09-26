@@ -79,7 +79,21 @@ export default function Dashboard() {
     const [pageItems, setPageItems] = useState<Product[]>([]);
 
     // View mode
-    const [view, setView] = useState<ViewMode>('grid');
+    const viewMode = {
+        defaultMode: 'grid' as ViewMode,
+        storageKey: 'product-view-mode',
+        getInit(): ViewMode {
+            const stored = sessionStorage.getItem(this.storageKey);
+            return stored === 'grid' || stored === 'table'
+                ? stored
+                : this.defaultMode;
+        },
+        set(value: ViewMode) {
+            sessionStorage.setItem(this.storageKey, value);
+            setView(value);
+        },
+    };
+    const [view, setView] = useState<ViewMode>(viewMode.getInit());
 
     return (
         <AppLayout>
@@ -89,7 +103,7 @@ export default function Dashboard() {
                     <Button
                         className="cursor-pointer"
                         variant={view === 'table' ? 'default' : 'ghost'}
-                        onClick={() => setView('table')}
+                        onClick={() => viewMode.set('table')}
                         aria-pressed={view === 'table'}
                     >
                         <List />
@@ -98,7 +112,7 @@ export default function Dashboard() {
                     <Button
                         className="cursor-pointer"
                         variant={view === 'grid' ? 'default' : 'ghost'}
-                        onClick={() => setView('grid')}
+                        onClick={() => viewMode.set('grid')}
                         aria-pressed={view === 'grid'}
                     >
                         <Grid2X2 />
